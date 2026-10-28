@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "Adelita",
+    "slug": "adelita",
+    "owner": "jmm-web-apps",
+    "scheme": "adelita",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FBF4F6",
+    "platforms": [
+      "ios"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.jmmwebapps.adelita",
+      "supportsTablet": false,
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "Adelita reads your runs, resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are.",
+        "NSHealthUpdateUsageDescription": "Adelita adds your planned sessions to the Workout app on your Apple Watch.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.4"
+          }
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/InstrumentSerif-Regular.ttf",
+            "./assets/fonts/Outfit-Regular.ttf",
+            "./assets/fonts/Outfit-SemiBold.ttf"
+          ]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 120,
+          "resizeMode": "contain",
+          "backgroundColor": "#FBF4F6"
+        }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Adelita reads your runs, resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are.",
+          "NSHealthUpdateUsageDescription": "Adelita adds your planned sessions to the Workout app on your Apple Watch.",
+          "background": false
+        }
+      ]
+    ],
+    "extra": {
+      "siteUrl": "https://adelita-coach.netlify.app",
+      "eas": {
+        "projectId": "4ef1b768-3995-4af3-a0f5-d519d54675e1"
+      }
+    }
+  }
+}

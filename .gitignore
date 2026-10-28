@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+dist/
+ios/
+android/
+*.ipa
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.env*
+credentials.json
+npm-debug.*
+.DS_Store

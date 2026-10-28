@@ -1,0 +1,33 @@
+{
+  "name": "adelita-ios",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "build:dev": "eas build --profile development --platform ios",
+    "build:preview": "eas build --profile preview --platform ios",
+    "build:prod": "eas build --profile production --platform ios",
+    "submit": "eas submit --profile production --platform ios --latest"
+  },
+  "dependencies": {
+    "@kingstinct/react-native-healthkit": "^16.2.0",
+    "expo": "~58.0.21",
+    "expo-build-properties": "~58.0.11",
+    "expo-dev-client": "~58.0.17",
+    "expo-font": "~58.0.11",
+    "expo-splash-screen": "~58.0.12",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-nitro-modules": "^0.37.1",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-webview": "14.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3"
+  }
+}
