@@ -1,0 +1,22 @@
+# Builds the App Store version and sends it to TestFlight.
+# Start it from expo.dev (Workflows) or with: npx eas-cli workflow:run .eas/workflows/testflight.yml
+name: TestFlight
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_ios:
+    name: Build for the App Store
+    type: build
+    params:
+      platform: ios
+      profile: production
+
+  submit_ios:
+    name: Send to TestFlight
+    needs: [build_ios]
+    type: submit
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production

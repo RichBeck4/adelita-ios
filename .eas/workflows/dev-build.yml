@@ -1,0 +1,14 @@
+# Development build for testing on our own iPhones (installs straight from Expo, not TestFlight).
+# Each new iPhone has to be registered once first: npx eas-cli device:create
+name: iPhone development build
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_ios:
+    name: Development build
+    type: build
+    params:
+      platform: ios
+      profile: development

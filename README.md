@@ -30,6 +30,15 @@ Expo SDK 58 (React Native 0.88), `react-native-webview`, `@kingstinct/react-nati
 - [ ] Sign in to Adelita in the app, allow Apple Health, and check that runs arrive
 - [ ] Open a session, tap "Send to my watch", allow it, and check the Workout app on the watch
 
+## Builds without a laptop
+
+The repo is linked to the Expo project, and `.eas/workflows/` holds two workflows you can start from expo.dev → Workflows:
+
+- **TestFlight** (`testflight.yml`): builds the App Store version and sends it to TestFlight
+- **iPhone development build** (`dev-build.yml`): a build for our own registered iPhones
+
+Both need the Apple credentials on Expo first. In App Store Connect, go to Users and Access → Integrations and create an App Store Connect API key (App Manager role). Add it in Expo under project → Credentials → iOS. After that, Expo makes the certificates itself.
+
 ## TestFlight (Karla's mum and other testers)
 
 - [ ] Create the app in App Store Connect with bundle ID `com.jmmwebapps.adelita`
