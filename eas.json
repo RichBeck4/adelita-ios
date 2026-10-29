@@ -7,7 +7,16 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "ios": { "resourceClass": "default" }
+      "ios": {
+        "resourceClass": "default"
+      }
+    },
+    "simulator": {
+      "ios": {
+        "simulator": true
+      },
+      "distribution": "internal",
+      "developmentClient": false
     },
     "preview": {
       "distribution": "internal"

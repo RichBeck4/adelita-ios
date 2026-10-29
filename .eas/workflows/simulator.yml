@@ -1,0 +1,14 @@
+# Test build for the iPhone Simulator. Needs no Apple Developer account.
+# It is the first full compile of the app, so it catches build errors before TestFlight.
+name: Simulator test build
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build_ios_simulator:
+    name: Build for the iPhone Simulator
+    type: build
+    params:
+      platform: ios
+      profile: simulator
