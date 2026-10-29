@@ -1,4 +1,6 @@
 # Creates or refreshes package-lock.json so every Expo build uses exactly the same package versions.
+# It also lines packages up with the Expo SDK (npx expo install --fix), then commits
+# package.json and package-lock.json together.
 # Run it from GitHub: Actions → "Update lockfile" → Run workflow. Re-run it after changing package.json.
 name: Update lockfile
 
@@ -12,27 +14,28 @@ jobs:
   lockfile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      - name: Resolve exact package versions
-        run: npm install --package-lock-only --no-audit --no-fund
+      - name: Install packages
+        run: npm install --no-audit --no-fund
 
-      - name: Check the packages match Expo SDK 58
-        run: |
-          npm ci --no-audit --no-fund
-          npx expo install --check
+      - name: Line packages up with the Expo SDK
+        run: npx expo install --fix
 
-      - name: Commit the lockfile
+      - name: Check everything matches
+        run: npx expo install --check
+
+      - name: Commit package.json and the lockfile
         run: |
-          if git diff --quiet -- package-lock.json && git ls-files --error-unmatch package-lock.json >/dev/null 2>&1; then
-            echo "Lockfile already up to date"; exit 0
+          git add package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo "Already up to date"; exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "Update package-lock.json"
+          git commit -m "Update package-lock.json (packages lined up with the Expo SDK)"
           git push
