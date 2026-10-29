@@ -39,6 +39,10 @@ The repo is linked to the Expo project, and `.eas/workflows/` holds two workflow
 
 Both need the Apple credentials on Expo first. In App Store Connect, go to Users and Access → Integrations and create an App Store Connect API key (App Manager role). Add it in Expo under project → Credentials → iOS. After that, Expo makes the certificates itself.
 
+## Lockfile
+
+`package-lock.json` pins the exact version of every package, so each Expo build is the same. To create or refresh it without a laptop, go to GitHub → Actions → **Update lockfile** → Run workflow. Run it again after any change to `package.json`.
+
 ## TestFlight (Karla's mum and other testers)
 
 - [ ] Create the app in App Store Connect with bundle ID `com.jmmwebapps.adelita`
