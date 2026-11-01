@@ -4,8 +4,10 @@ This is the iPhone shell for the Adelita web app. The web app lives in a separat
 
 ## Files
 
-- `App.tsx` is the WebView shell. It holds the page bridge (`health.read`, `watch.schedule`), the foreground event, link routing and the offline screen.
+- `App.tsx` is the WebView shell. It holds the page bridge (`health.read`, `watch.schedule`, `calendar.busy`), the foreground event, link routing and the offline screen.
 - `src/health.ts` reads Apple Health and returns the shape `netlify/functions/health-sync.mjs` expects.
+- `src/samples.ts` builds each recent run's `samples` (route, heart rate, distance) for the run detail screen.
+- `src/calendar.ts` reads busy start/end times (nothing else) from her calendars for the clash check.
 - `src/links.ts` decides which addresses stay in the app.
 - `modules/adelita-watch` is a Swift (WorkoutKit) module that schedules sessions in the Apple Watch Workout app. `index.ts` is its JS wrapper.
 - `assets/` holds the icon, the splash mark and the fonts.

@@ -1,7 +1,8 @@
 // Reads runs and recovery from Apple Health on her iPhone, in the shape the page's
 // health-sync function expects:
-//   { workouts: [{ id, date, start, distanceM, durationSec, avgHr, maxHr, name }],
+//   { workouts: [{ id, date, start, distanceM, durationSec, avgHr, maxHr, name, samples? }],
 //     resting: [{ day, bpm }], hrv: [{ day, ms }], sleep: [{ day, secs }] }
+// samples (recent runs only) feed the run detail screen; see src/samples.ts.
 import {
   isHealthDataAvailable,
   queryCategorySamples,
@@ -10,9 +11,11 @@ import {
   requestAuthorization,
   WorkoutActivityType,
 } from '@kingstinct/react-native-healthkit';
+import { readSamples, type RunSamples } from './samples';
 
 const READ = [
   'HKWorkoutTypeIdentifier',
+  'HKWorkoutRouteTypeIdentifier',
   'HKQuantityTypeIdentifierHeartRate',
   'HKQuantityTypeIdentifierRestingHeartRate',
   'HKQuantityTypeIdentifierHeartRateVariabilitySDNN',
@@ -24,6 +27,7 @@ export type HealthPayload = {
   workouts: {
     id: string; date: string; start: string; distanceM: number; durationSec: number;
     avgHr: number | null; maxHr: number | null; name: string | null;
+    samples?: RunSamples;
   }[];
   resting: { day: string; bpm: number }[];
   hrv: { day: string; ms: number }[];
@@ -65,7 +69,19 @@ function seconds(q?: { quantity: number; unit: string }): number | null {
 
 let asked = false;
 
-export async function readHealth(days: number): Promise<HealthPayload> {
+// Runs whose samples have already gone to the page since the app opened, so a sync each
+// time she comes back to the app doesn't send the same routes again. The server keeps
+// the detail once saved, so after a relaunch sending them once more is harmless.
+const samplesSent = new Set<string>();
+const MAX_RUNS_WITH_SAMPLES = 20;
+
+export function markSamplesSent(payload: HealthPayload) {
+  for (const w of payload.workouts) if (w.samples) samplesSent.add(w.id);
+}
+
+// days: how far back to read runs and recovery. samplesDays: how far back to attach
+// samples (defaults to the last 14 days, never more than days).
+export async function readHealth(days: number, samplesDays?: number): Promise<HealthPayload> {
   if (!isHealthDataAvailable()) throw new HealthError('health_unavailable', 'Health data is not available on this device');
   if (!asked) {
     // iOS only shows the permission sheet once; after that this returns straight away.
@@ -75,6 +91,9 @@ export async function readHealth(days: number): Promise<HealthPayload> {
   const span = Math.max(1, Math.min(200, Math.round(days || 90)));
   const startDate = new Date(Date.now() - span * 86400000);
   const date = { startDate };
+  const sampleSpan = Math.max(0, Math.min(span, Math.round(Number.isFinite(samplesDays) ? Number(samplesDays) : 14)));
+  const samplesFrom = Date.now() - sampleSpan * 86400000;
+  let withSamples = 0;
 
   // ---- runs ----
   const runs = await queryWorkoutSamples({
@@ -93,6 +112,11 @@ export async function readHealth(days: number): Promise<HealthPayload> {
       if (hr?.averageQuantity) avgHr = Math.round(hr.averageQuantity.quantity);
       if (hr?.maximumQuantity) maxHr = Math.round(hr.maximumQuantity.quantity);
     } catch { /* no heart rate for this run */ }
+    let samples: RunSamples | null = null;
+    if (w.startDate.getTime() >= samplesFrom && !samplesSent.has(w.uuid) && withSamples < MAX_RUNS_WITH_SAMPLES) {
+      try { samples = await readSamples(w, durationSec); } catch { samples = null; }
+      if (samples) withSamples++;
+    }
     workouts.push({
       id: w.uuid,
       date: localDay(w.startDate),
@@ -102,6 +126,7 @@ export async function readHealth(days: number): Promise<HealthPayload> {
       avgHr,
       maxHr,
       name: null, // the page names runs itself; device names can be personal ("Karla's Apple Watch")
+      ...(samples ? { samples } : {}),
     });
   }
 

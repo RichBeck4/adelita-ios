@@ -16,8 +16,10 @@ Expo SDK 58 (React Native 0.88), `react-native-webview`, `@kingstinct/react-nati
 
 ## How the page and the app talk
 
-- The app sets `window.ADELITA_NATIVE = { platform: 'ios', health: true, watch, version }` before the page loads.
-- Page to app: `{ id, type: 'health.read', args: { days } }` and `{ id, type: 'watch.schedule', args: { workouts: [{ id, date, workout }] } }`.
+- The app sets `window.ADELITA_NATIVE = { platform: 'ios', health: true, watch, calendar: true, version }` before the page loads. `calendar` is missing on older app versions, so the page should check it before asking for busy times.
+- Page to app: `{ id, type: 'health.read', args: { days, samplesDays? } }` and `{ id, type: 'watch.schedule', args: { workouts: [{ id, date, workout }] } }`.
+- `health.read` returns `{ workouts, resting, hrv, sleep }` (the shape `netlify/functions/health-sync.mjs` reads). Runs from the last `samplesDays` days (14 if not given) also carry `samples` for the run detail screen: parallel arrays `{ t, d, hr, lat, lng, alt }` on a 5-second timeline (seconds from the start, metres so far, bpm, degrees, metres, with `null` for gaps), from the run's route, heart rate and distance in Apple Health. At most 20 runs carry samples per read, and a run's samples are only sent once while the app stays open.
+- `{ id, type: 'calendar.busy', args: { days } }` returns `[{ start, end }]` (ISO times) for the busy events in the next `days` (up to 14) across every calendar on the phone. Only start and end times are sent, never titles, places, notes or attendees. All-day events, events marked free and cancelled events are left out. The app asks for calendar access the first time the page asks; if she says no, the reply is an error `calendar_denied`.
 - App to page: `window.__adelitaNativeReply(id, ok, payload)`, and an `adelita:foreground` event when the app comes back to the front.
 - Only Adelita's own pages can make these requests. Links to anything other than Adelita, COROS and Intervals.icu open in Safari (`src/links.ts`).
 

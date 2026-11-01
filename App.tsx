@@ -2,8 +2,9 @@
 // can do — read Apple Health and put planned sessions on her Apple Watch.
 //
 // Page ↔ app messages (see the web repo, public/index.html, "inside the Adelita iPhone app"):
-//   page → app  { id, type: 'health.read',    args: { days } }
+//   page → app  { id, type: 'health.read',    args: { days, samplesDays? } }
 //   page → app  { id, type: 'watch.schedule', args: { workouts: [{ id, date, workout }] } }
+//   page → app  { id, type: 'calendar.busy',  args: { days } }  → [{ start, end }]
 //   app → page  window.__adelitaNativeReply(id, ok, payload)
 //   app → page  'adelita:foreground' event when the app comes back to the front
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -12,7 +13,8 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
-import { HealthError, readHealth } from './src/health';
+import { HealthError, markSamplesSent, readHealth } from './src/health';
+import { CalendarError, readBusy } from './src/calendar';
 import { isAdelitaPage, SITE, staysInApp } from './src/links';
 import { scheduleWorkouts, watchSupported, type WatchWorkout } from './modules/adelita-watch';
 
@@ -21,13 +23,14 @@ const VERSION = '1.0.0';
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 // Set before the page's own scripts run, so the page knows it is inside the app and
-// whether it can send sessions to the Workout app on Apple Watch (iOS 17+).
-const BEFORE_LOAD = `window.ADELITA_NATIVE = ${JSON.stringify({ platform: 'ios', health: true, watch: watchSupported(), version: VERSION })}; true;`;
+// whether it can send sessions to the Workout app on Apple Watch (iOS 17+) and read
+// busy times from her calendars.
+const BEFORE_LOAD = `window.ADELITA_NATIVE = ${JSON.stringify({ platform: 'ios', health: true, watch: watchSupported(), calendar: true, version: VERSION })}; true;`;
 
 type Request = {
   id: string;
   type: string;
-  args?: { days?: number; workouts?: { id: string; date: string; workout: WatchWorkout }[] };
+  args?: { days?: number; samplesDays?: number; workouts?: { id: string; date: string; workout: WatchWorkout }[] };
 };
 
 const C = {
@@ -57,7 +60,10 @@ export default function App() {
 
     if (msg.type === 'health.read') {
       try {
-        reply(msg.id, true, await readHealth(Number(msg.args?.days) || 90));
+        const sd = msg.args?.samplesDays;
+        const payload = await readHealth(Number(msg.args?.days) || 90, sd === undefined ? undefined : Number(sd));
+        reply(msg.id, true, payload);
+        markSamplesSent(payload);
       } catch (err) {
         reply(msg.id, false, { error: err instanceof HealthError ? err.code : 'health_failed' });
       }
@@ -69,6 +75,14 @@ export default function App() {
       } catch (err) {
         const code = (err as { code?: string })?.code;
         reply(msg.id, false, { error: code === 'watch_unsupported' ? 'watch_unsupported' : 'watch_failed' });
+      }
+      return;
+    }
+    if (msg.type === 'calendar.busy') {
+      try {
+        reply(msg.id, true, await readBusy(Number(msg.args?.days) || 7));
+      } catch (err) {
+        reply(msg.id, false, { error: err instanceof CalendarError ? err.code : 'calendar_failed' });
       }
       return;
     }

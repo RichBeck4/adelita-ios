@@ -15,12 +15,12 @@
     "ios": {
       "bundleIdentifier": "com.jmmwebapps.adelita",
       "supportsTablet": false,
-      "buildNumber": "1",
+      "buildNumber": "2",
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSHealthShareUsageDescription": "Adelita reads your runs, resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are.",
+        "NSHealthShareUsageDescription": "Adelita reads your runs (with their route, heart rate and distance), resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are, and so you can see each run's map and splits.",
         "NSHealthUpdateUsageDescription": "Adelita adds your planned sessions to the Workout app on your Apple Watch.",
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -56,9 +56,16 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "Adelita reads your runs, resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are.",
+          "NSHealthShareUsageDescription": "Adelita reads your runs (with their route, heart rate and distance), resting heart rate, heart rate variability and sleep from Apple Health so your plan and paces match how fit and recovered you really are, and so you can see each run's map and splits.",
           "NSHealthUpdateUsageDescription": "Adelita adds your planned sessions to the Workout app on your Apple Watch.",
           "background": false
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Adelita checks when you're busy so it can warn you before a run clashes. It never reads what your events are.",
+          "remindersPermission": false
         }
       ]
     ],
