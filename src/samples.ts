@@ -113,7 +113,7 @@ export async function readSamples(w: WorkoutProxyTyped, durationSec: number): Pr
   const step = Math.max(STEP, Math.ceil(total / MAX_ROWS));
   const out: RunSamples = { t: [], d: [], hr: [], lat: [], lng: [], alt: [] };
   let hi = 0, gi = 0;
-  for (let x = 0; x <= total; x += step) {
+  for (let x = 0; x <= total && out.t.length < MAX_ROWS; x += step) {
     const h = hrT.length ? nearest(hrT, x, hi, HR_WINDOW) : -1;
     if (h >= 0) hi = h;
     const g = gpsT.length ? nearest(gpsT, x, gi, GPS_WINDOW) : -1;
